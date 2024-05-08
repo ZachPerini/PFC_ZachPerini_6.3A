@@ -1,0 +1,85 @@
+﻿@inject ZachPerini_6._3A_HA.Repositories.RedisRepository _redisRepository
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ZachPerini_6._3A_HA</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ZachPerini_6._3A_HA.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Artefacts" asp-action="Index">My Library</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        @if (User.Identity.IsAuthenticated == true)
+                        {
+                            <!--
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Artefacts" asp-action="Index">My Artefacts</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Artefacts" asp-action="Create">Upload Artefacts</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Artefacts" asp-action="SharedArtefacts" asp-route-email="@User.FindFirstValue(ClaimTypes.Email)">Shared With Me</a>
+                            </li>-->
+
+
+                            var menus = await _redisRepository.GetMenus();
+                            foreach (var menu in menus)
+                            {
+                                <li class="nav-item">
+                                    @if (menu.Name == "Shared With Me Artefacts")
+                                    {
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="@menu.Path.Split('/')[0]" asp-action="@menu.Path.Split('/')[1]" asp-route-email="@User.FindFirstValue(ClaimTypes.Email)">@menu.Name</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="@menu.Path.Split('/')[0]" asp-action="@menu.Path.Split('/')[1]">@menu.Name</a>
+                                    }
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+                @if (User.Identity.IsAuthenticated == true)
+                {
+                    <span style="float:right">Welcome @User.Identity.Name &nbsp;</span>
+                    <a style="float:right" href="/Artefacts/Logout"> Log out</a>
+                }
+                else
+                {
+                    <a href="/Artefacts/MembersLanding" style="float:right">Log In</a>
+                }
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            Zachary Perini MSD6.3A
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,76 @@
+﻿@model IEnumerable<ZachPerini_6._3A_HA.Models.Artefact>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>My Artefacts</h1>
+
+@if (User.Identity.IsAuthenticated == true)
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+    @if (Model.Any(item => item.Author == User.Identity.Name))
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Title)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Author)
+                    </th>
+                    <th>File Link</th>
+                    <th>Created On</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Where(item => item.Author == User.Identity.Name))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Title)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Author)
+                        </td>
+                        <td>
+                            @{
+                                //if status = 1 meaning the file has been converted to pdf
+                                // then show the download link
+
+                                var filename = item.Id + ".pdf";
+                                if (item.status == "1")
+                                {
+                                    <a href="https://storage.cloud.google.com/artefact_bucket_zp/@filename">Download PDF</a>
+                                }
+                            }
+                        </td>
+                        <td>
+                            <span>@item.DateUploaded.ToDateTime().ToShortDateString()</span>
+                        </td>
+                        <td>
+                            @Html.ActionLink("Shared User List", "Index", "SharedUsers", new { artefactId = item.Id }) |
+                            @if (item.status == "1")
+                            {
+                                <a href="\SharedUsers\Create?artefactId=@item.Id">Add User</a> 
+                            } |
+                            @Html.ActionLink("Delete", "Delete", new { artefactId = item.Id }) |
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>There are no documents to display.</p>
+    }
+}
+else
+{
+    <p>Log in to view Your Artefacts</p>
+}
